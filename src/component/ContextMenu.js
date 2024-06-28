@@ -18,7 +18,6 @@ const ContextMenu = ({ item }) => {
   const handleMenuClick = (action) => {
     setIsMenuVisible(false);
     toggleStatus(item?.id, action)
-    alert(`Clicked on ${action} for ${item}`);
   };
 
   useEffect(() => {
