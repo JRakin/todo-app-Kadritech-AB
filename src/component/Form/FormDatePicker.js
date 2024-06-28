@@ -13,7 +13,7 @@ const FormDatePicker = ({value}) => {
             <DatePicker
               className="mt-1 w-full p-2 border border-gray-300 rounded"
               {...field}
-              selected={field.value ? new Date(field.value) : null}
+              selected={field.value || null}
               onChange={(val) => {
                 setFieldValue('dueDate', val);
               }}

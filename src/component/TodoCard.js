@@ -6,6 +6,7 @@ import {
   faBarsProgress,
   faCalendarCheck,
 } from "@fortawesome/free-solid-svg-icons";
+import { differenceInMilliseconds } from "date-fns";
 
 const TodoCard = ({ item, handleContextMenu }) => {
   const cardClasses = classNames(
@@ -18,15 +19,25 @@ const TodoCard = ({ item, handleContextMenu }) => {
   );
 
   const calculateDueDate = () => {
-    let difference = item?.dueDate?.getTime() - new Date().getTime();
+    let dueDate = item?.dueDate;
+    if (dueDate.getMonth() > new Date().getMonth()) {
+      return { days: 0, hours: 0, minutes: 0, seconds: 0 }; // Return zero difference
+    }
+    const millisecondsDiff = differenceInMilliseconds(dueDate, new Date());
 
-    const hours = Math.floor(difference / (1000 * 60 * 60));
-    difference -= hours * (1000 * 60 * 60);
-    const minutes = Math.floor(difference / (1000 * 60));
-    difference -= minutes * (1000 * 60);
-    const seconds = Math.floor(difference / 1000);
+    // Convert milliseconds difference to seconds
+    let difference = millisecondsDiff / 1000;
 
-    return { hours, minutes, seconds };
+    // Calculate days, hours, minutes, seconds
+    const days = Math.floor(difference / (60 * 60 * 24));
+    difference -= days * (60 * 60 * 24);
+    const hours = Math.floor(difference / (60 * 60));
+    difference -= hours * (60 * 60);
+    const minutes = Math.floor(difference / 60);
+    difference -= minutes * 60;
+    const seconds = Math.floor(difference);
+
+    return { days, hours, minutes, seconds };
   };
 
   return (
@@ -36,11 +47,14 @@ const TodoCard = ({ item, handleContextMenu }) => {
           <h4 className="text-md first-line:text-gray-700 font-semibold">
             {item?.title}
           </h4>
-          {calculateDueDate().hours &&
+          {(calculateDueDate().hours ||
+            calculateDueDate().days ||
+            calculateDueDate().minutes ||
+            calculateDueDate().seconds) &&
           (item?.key === "new" || item?.key === "ongoing") ? (
             <span className="text-xs">
-              {calculateDueDate().hours} Hours {calculateDueDate().minutes}{" "}
-              minutes due
+              {calculateDueDate().days} days {calculateDueDate().hours} Hours{" "}
+              {calculateDueDate().minutes} minutes due
               <span className="ml-2 text-red-600">
                 <FontAwesomeIcon icon={faHourglass} />
               </span>
